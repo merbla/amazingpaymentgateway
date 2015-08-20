@@ -1,1 +1,1 @@
-# amazingpaymentgateway
+# A simple example app for deployments
