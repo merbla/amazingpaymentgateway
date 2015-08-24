@@ -2,11 +2,11 @@
 
 namespace APG.API.Controllers
 {
-    public class OnlineController : ApiController {
+    public class OnlineController : ApiController
+    {
         public string Get()
         {
-            return "online";
+            return "Hello Splunk";
         }
     }
-     
 }
