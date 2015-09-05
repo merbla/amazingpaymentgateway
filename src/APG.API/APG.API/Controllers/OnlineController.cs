@@ -1,4 +1,6 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Web.Http;
+using Serilog;
 
 namespace APG.API.Controllers
 {
@@ -6,7 +8,9 @@ namespace APG.API.Controllers
     {
         public string Get()
         {
+            Log.Information("Yes: {0}", Guid.NewGuid().ToString());
             return "Hello Splunk";
         }
     }
+
 }
