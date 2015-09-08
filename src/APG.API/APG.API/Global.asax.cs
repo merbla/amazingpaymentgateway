@@ -96,13 +96,49 @@ namespace APG.API
 
                     foreach (var logEvent in events)
                     {
-                        _jsonFormatter.Format(logEvent, sw);
+                       // _jsonFormatter.Format(logEvent, sw);
+
+
+                        var uri = "https://mysplunk:8088/services/collector";
+
+                        var d = new Data { Event = logEvent };
+
+                         _jsonFormatter.Format(logEvent, sw);
+
+                        var d2 = sw.ToString();
+
+                        dynamic d3 = JsonConvert.DeserializeObject(d2);
+                        d.Event = d3;
+
+                        using (var client = new HttpClient())
+                        {
+                            var stringContent = new StringContent(JsonConvert.SerializeObject(d), Encoding.UTF8, "application/json");
+
+                            var request = new HttpRequestMessage
+                            {
+                                RequestUri = new Uri(uri),
+                                Content = stringContent
+                            };
+
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Splunk", "DDCB3B16-9EC4-47ED-B2C1-3775DE291DBF");
+
+                            request.Method = HttpMethod.Post;
+
+                            var response = await client.SendAsync(request);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                            }
+                        }
+
+
                     }
+
 
                     //All log message data
                     // var message = Encoding.UTF8.GetBytes(sw.ToString());
 
-                    await DoIt(sw.ToString());
+                    //  await DoIt(sw.ToString());
                 } while (true);
             }
             catch (Exception ex)
@@ -142,10 +178,11 @@ namespace APG.API
         }
     }
 
-    internal class Data
+
+    internal class Data 
     {
         [JsonProperty("event")]
-        public string Event { get; set; }
+        public object Event { get; set; }
     }
 
     internal static class RepeatAction
