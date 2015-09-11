@@ -17,6 +17,8 @@ namespace APG.API.Serilog
 {
     public class EventCollectorSink : ILogEventSink
     {
+        private readonly string _splunkHost;
+        private readonly string _eventCollectorToken;
         private readonly int _batchSizeLimit;
         private readonly JsonFormatter _jsonFormatter;
         private readonly ConcurrentQueue<LogEvent> _queue;
@@ -27,6 +29,8 @@ namespace APG.API.Serilog
             bool renderTemplate = true
             )
         {
+            _splunkHost = splunkHost;
+            _eventCollectorToken = eventCollectorToken;
             _queue = new ConcurrentQueue<LogEvent>();
 
             _jsonFormatter = new JsonFormatter(renderMessage: true, formatProvider: formatProvider);
@@ -38,7 +42,7 @@ namespace APG.API.Serilog
 
         public void Emit(LogEvent logEvent)
         {
-            if (logEvent == null) throw new ArgumentNullException("logEvent");
+            if (logEvent == null) throw new ArgumentNullException(nameof(logEvent));
 
             _queue.Enqueue(logEvent);
         }
@@ -66,31 +70,36 @@ namespace APG.API.Serilog
 
                     foreach (var logEvent in events)
                     {
-                        // _jsonFormatter.Format(logEvent, sw);
-
-
-                        var uri = "https://mysplunk:8088/services/collector";
-
-                        var d = new Data { Event = logEvent };
+                      
+                        
+                        var payload = new Data { Event = logEvent };
 
                         _jsonFormatter.Format(logEvent, sw);
 
-                        var d2 = sw.ToString();
+                        var logEventAsAString = sw.ToString();
 
-                        dynamic d3 = JsonConvert.DeserializeObject(d2);
-                        d.Event = d3;
+                        var plainPayload = "{'event':";
+                        plainPayload = plainPayload + logEventAsAString;
+                        plainPayload = plainPayload + "}";
+                       // var plainPayload = string.Format(@"{'event':{0}}",logEventAsAString);
+
+                        dynamic dynamicLogEvent = JsonConvert.DeserializeObject(logEventAsAString);
+                        payload.Event = dynamicLogEvent;
+
+                        var serializedPayload = JsonConvert.SerializeObject(payload);
 
                         using (var client = new HttpClient())
                         {
-                            var stringContent = new StringContent(JsonConvert.SerializeObject(d), Encoding.UTF8, "application/json");
+                            //var stringContent = new StringContent(plainPayload, Encoding.UTF8, "application/json");
+                            var stringContent = new StringContent(serializedPayload, Encoding.UTF8, "application/json");
 
                             var request = new HttpRequestMessage
                             {
-                                RequestUri = new Uri(uri),
+                                RequestUri = new Uri(_splunkHost),
                                 Content = stringContent
                             };
 
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Splunk", "DDCB3B16-9EC4-47ED-B2C1-3775DE291DBF");
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Splunk", _eventCollectorToken);
 
                             request.Method = HttpMethod.Post;
 
