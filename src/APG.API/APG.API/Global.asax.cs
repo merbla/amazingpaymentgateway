@@ -24,10 +24,11 @@ namespace APG.API
                 .Enrich.With<HttpRequestIdEnricher>()
                 .Enrich.With<MachineNameEnricher>()
                 .Enrich.With<ThreadIdEnricher>()
-
+                .Enrich.With<VersionEnricher>()
+              //  .Enrich.FromLogContext()
                 .WriteTo.EventCollector(splunkHost, eventCollectorToken)
                 .CreateLogger();
-
+            
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
