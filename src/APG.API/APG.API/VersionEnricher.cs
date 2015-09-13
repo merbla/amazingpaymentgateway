@@ -17,36 +17,9 @@ namespace APG.API
 
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
-            var environmentVariable = GetApplicationAssembly().GetName().Version;
+             var environmentVariable = this.GetType().Assembly.GetName().Version;
             _cachedProperty = _cachedProperty ?? propertyFactory.CreateProperty(AssemblyVersionPropertyName, environmentVariable);
             logEvent.AddPropertyIfAbsent(_cachedProperty);
-        }
-
-        private const string AspNetNamespace = "ASP";
-
-        private static Assembly GetApplicationAssembly()
-        {
-           
-            Assembly ass = Assembly.GetEntryAssembly();
-
-            HttpContext ctx = HttpContext.Current;
-            if (ctx != null)
-                ass = GetWebApplicationAssembly(ctx);
-
-            return ass ?? (Assembly.GetExecutingAssembly());
-        }
-
-        private static Assembly GetWebApplicationAssembly(HttpContext context)
-        {
-            
-            object app = context.ApplicationInstance;
-            if (app == null) return null;
-
-            Type type = app.GetType();
-            while (type != null && type != typeof(object) && type.Namespace == AspNetNamespace)
-                type = type.BaseType;
-
-            return type.Assembly;
-        }
+        } 
     }
 }
