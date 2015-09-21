@@ -8,8 +8,8 @@ namespace APG.API.Controllers
     {
         public string Get()
         {
-            Log.Information("Yes: {0}", Guid.NewGuid().ToString());
-            return "Hello Splunk";
+            Log.Information("gday conf 2015 : {0}", Guid.NewGuid().ToString());
+            return "gday conf 2015 ";
         }
     }
 
