@@ -9,7 +9,7 @@ namespace APG.API.Controllers
         public string Get()
         {
             Log.Information("Gday conf 2015 : {0}", Guid.NewGuid().ToString());
-            return "gday conf 2015 ";
+            return "Gday conf 2015 ";
         }
     }
 
