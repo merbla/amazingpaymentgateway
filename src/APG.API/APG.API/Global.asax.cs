@@ -25,8 +25,8 @@ namespace APG.API
                 .Enrich.With<MachineNameEnricher>()
                 .Enrich.With<ThreadIdEnricher>()
                 .Enrich.With<VersionEnricher>()
-              //  .Enrich.FromLogContext()
-                .WriteTo.EventCollector(splunkHost, eventCollectorToken)
+                //.WriteTo.EventCollector(splunkHost, eventCollectorToken)
+                .WriteTo.SplunkViaEventCollector(splunkHost, eventCollectorToken)
                 .CreateLogger();
             
             AreaRegistration.RegisterAllAreas();
